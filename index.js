@@ -15,11 +15,25 @@ const async = require('async');
 const noble = require('noble');
 const util = require('util');
 const setTimeoutPromise = util.promisify(setTimeout);
-const setTimeoutInterval = util.promisify(setInterval);
+const setIntervalPromise = util.promisify(setInterval);
+const clearPeriferalLastSeenPromise = util.promisify(clearPeriferalLastSeen);
 
 const allowDuplicates = true;
 const serviceUUIDs = [];
 // const serviceUUIDs = ["1800"];
+
+
+
+
+
+
+
+const DEBUG = false;
+
+
+
+
+
 
 // Noble BLE Services
 noble.on('stateChange', function(state) {
@@ -44,6 +58,13 @@ var globalCounter = 0;
 
 var deviceCount = 0;
 
+// WebSocket Code
+// const wss = new WebSocket.Server({ path: 'john', port: 8080 });
+// const wss = new WebSocket.Server({ host: 'ws://localhost', path: 'john', port: 8080 });
+const wss = new WebSocket.Server({path: '/john', port: 8080 });
+var _ws = null;
+let wsConnection = false;
+
 
 delayedAlert();
 
@@ -63,7 +84,11 @@ var discoveries = [];
 
 function delayedAlert() {
   // timeoutID = setTimeout(alert, 15000, timerCallback);
-  timeoutID = setTimeoutPromise(15000, 'foobar').then((value) => {
+
+  // 10000
+  // 
+  // update back to 15000
+  timeoutID = setTimeoutPromise(5000, 'foobar').then((value) => {
 
 
     // console.log("VALUE????", value);
@@ -73,9 +98,8 @@ function delayedAlert() {
 
 
     save_cache = false;
-    sendDiscoveriesTimer();
     clearAlert();
-
+    sendDiscoveriesTimer();
 
     console.log("ble_cache");
     console.log("ble_cache");
@@ -89,45 +113,144 @@ function delayedAlert() {
     console.log("====================");
 
 
+  })
+  .catch((error) => {
+    // Handle the error.
+    console.log("delayedAlert ERROR");
+    console.log("delayedAlert ERROR");
+    console.log("delayedAlert ERROR");
+    console.log("delayedAlert ERROR");
+    console.log("delayedAlert ERROR");
   });
 }
 
 function sendDiscoveriesTimer(){
 
-    sendID = setIntervalPromise(5000, 'foobar').then((value) => {
+  console.log("WE EVER GET HERE?????");
+
+  // sendID = setIntervalPromise(5000, 'foobar').then((value) => {
+  // sendID = setIntervalPromise(5000, 'foobar').then((value2) => {
+  sendID = setTimeoutPromise(5000, 'foobar').then((value2) => {
+    // setTimeoutPromise
+
+    console.log("setIntervalPromise: ", value2);
+    console.log("setIntervalPromise: ", value2);
+    console.log("setIntervalPromise: ", value2);
+    console.log("setIntervalPromise: ", value2);
+
+    console.log("discoveries: ", discoveries);
+
+    clearPeriferalLastSeenPromise(discoveries).then((active_value) => {
+      console.log("Arguments", arguments);
+      console.log("Arguments", arguments);
+      console.log("Arguments", arguments);
+      console.log("active_value", active_value);
+      console.log("active_value", active_value);
+      console.log("active_value", active_value);
+      console.log("active_value", active_value);
+      console.log("active_value", active_value);
+      console.log("active_value", active_value);
+      console.log("active_value", active_value);
+      console.log("active_value", active_value);
+      console.log("active_value", active_value);
+      console.log("====================");
+
+      console.log("SEND DISVOERIES TIMER");
+      console.log("SEND DISVOERIES TIMER");
+      console.log("SEND DISVOERIES TIMER");
+      console.log("====================");
+      console.log("SEND DISCOVERIES");
+      console.log(discoveries);
+      console.log("====================");
+      console.log("====================");
+      console.log("RETURNED FILTER");
+      console.log("RETURNED FILTER");
+      console.log("RETURNED FILTER");
+      console.log("RETURNED FILTER");
+      console.log("RETURNED FILTER");
+      console.log(tmp_obj_v2);
+      console.log(active_value);
+      console.log("====================");
+      console.log("====================");
+      console.log("====================");
+
+      if(DEBUG == false){
+        if(wsConnection == true){
+          _ws.send(discoveries);  
+        }
+      }
 
 
-    // console.log("VALUE????", value);
+    })
+    // .then(() => {
 
-    // // value === 'foobar' (passing values is optional)
-    // // This is executed after about 40 milliseconds.
+    //   clearTimeout(sendID);
+    //   sendDiscoveriesTimer();
 
+    // })
+    .catch((error) => {
+      // Handle the error.
+      console.log("ERROR");
+      console.log("ERROR");
+      console.log("ERROR");
+      console.log("ERROR");
+      console.log("ERROR");
+    });
 
-    // save_cache = false;
-    // clearAlert();
+    clearTimeout(sendID);
+    sendDiscoveriesTimer();
 
-
-    console.log("ble_cache");
-    console.log("ble_cache");
-    console.log("ble_cache");
-    console.log("====================");
-    console.log("SEND DISCOVERIES");
-    console.log(discoveries);
-    console.log("====================");
-    console.log("====================");
-    console.log("====================");
-    console.log("====================");
-    console.log("====================");
-
-
+  })
+  .catch((error) => {
+    // Handle the error.
+    console.log("setIntervalPromise ERROR");
+    console.log("setIntervalPromise ERROR");
+    console.log("setIntervalPromise ERROR");
+    console.log("setIntervalPromise ERROR");
+    console.log("setIntervalPromise ERROR");
   });
 
-  clearPeriferalLastSeen();
+  // clearPeriferalLastSeen();
 
 }
 
-function clearPeriferalLastSeen(){
-  _.each(discoveries, function(val, index){
+// function clearPeriferalLastSeen(_discoveries, callback){
+//   _.each(_discoveries, function(val, index){
+
+//     // if last seen was 30 seconds ago
+//     // set it as inactive
+//     // maybe we'll remove this from the object
+//     // unsure at the moment
+//     if(globalCounter - val.lastSeen > 30000){
+//       val.active = false;
+//     }
+
+//   });
+
+
+//   let tmp_objects = _.cloneDeep(discoveries);
+
+//   // _.filter(tmp_objects, function(o) { 
+//   //   return !o.active; 
+//   // });
+
+//   let tmp_obj_v2 = _.every(tmp_objects, ['active', true]);
+
+  
+//   return tmp_obj_v2;
+
+
+
+// }
+
+
+// const clearPeriferalLastSeen = (_discoveries, callback) => {
+function clearPeriferalLastSeen(_discoveries, callback){
+
+  console.log("arguments", arguments);
+  console.log("_discoveries", _discoveries);
+
+  _.each(_discoveries, function(val, key){
 
     // if last seen was 30 seconds ago
     // set it as inactive
@@ -139,7 +262,34 @@ function clearPeriferalLastSeen(){
 
   });
 
-}
+  let tmp_objects = _.cloneDeep(_discoveries);
+
+  // _.filter(tmp_objects, function(o) { 
+  //   return !o.active; 
+  // });
+
+  console.log("tmp_objects: ", tmp_objects);
+  // console.log("tmp_objects: ", tmp_objects);
+  // console.log("tmp_objects: ", tmp_objects);
+  // console.log("tmp_objects: ", tmp_objects);
+  // console.log("tmp_objects: ", tmp_objects);
+
+  // let tmp_obj_v2 = _.every(tmp_objects, ['active', true]);
+  // let tmp_obj_v2 = _.filter(tmp_objects, ['active', true]);
+
+  let tmp_obj_v2 = _.filter(discoveries, function(val){ return val.active});
+
+  console.log("tmp_obj_v2: ", tmp_obj_v2);
+  // console.log("tmp_obj_v2: ", tmp_obj_v2);
+  // console.log("tmp_obj_v2: ", tmp_obj_v2);
+  // console.log("tmp_obj_v2: ", tmp_obj_v2);
+  // console.log("tmp_obj_v2: ", tmp_obj_v2);
+  // console.log("tmp_obj_v2: ", tmp_obj_v2);
+
+  
+  callback(null, tmp_obj_v2);
+};
+
 
 // function timerCallback(){
 //   save_cache = false;
@@ -169,15 +319,6 @@ function clearAlert() {
 // init Noble BLE 
 initNoble();
 
-
-
-// WebSocket Code
-// const wss = new WebSocket.Server({ path: 'john', port: 8080 });
-// const wss = new WebSocket.Server({ host: 'ws://localhost', path: 'john', port: 8080 });
-const wss = new WebSocket.Server({path: '/john', port: 8080 });
-
-var _ws = null;
-
 console.log(wss.address());
 
 // var that = this;
@@ -185,6 +326,7 @@ console.log(wss.address());
 wss.on('connection', function connection(ws, req) {
   const ip = req.connection.remoteAddress;
   console.log("ip: ", ip);
+  wsConnection = true;
 
   _ws = ws;
 
@@ -210,6 +352,8 @@ wss.on('error', function connection(ws, req) {
 wss.on('close', function connection(ws, req) {
     // need to do a reconnection
     //
+
+    wsConnection = false;
 });
 
 
@@ -226,130 +370,175 @@ function initNoble(){
 
 
   noble.on('discover', function(peripheral) {
-    // if (peripheral.id === peripheralIdOrAddress || peripheral.address === peripheralIdOrAddress) {
-      
-      // Don't only find the first item...
-      // Do this constantly over and over!
-      // ============
-      // noble.stopScanning();
 
-      console.log('peripheral with ID ' + peripheral.id + ' found');
-      var advertisement = peripheral.advertisement;
+    // Don't only find the first item...
+    // Do this constantly over and over!
+    // ============
+    // noble.stopScanning();
 
-      // console.log('peripheral: ' + peripheral + ' found');
-      // console.log('advertisement: ' + advertisement + ' found');
-      
+    console.log('peripheral with ID ' + peripheral.id + ' found');
+    var advertisement = peripheral.advertisement;
 
-      var localName = advertisement.localName;
-      var txPowerLevel = advertisement.txPowerLevel;
-      var manufacturerData = advertisement.manufacturerData;
-      var serviceData = advertisement.serviceData;
-      var serviceUuids = advertisement.serviceUuids;
-      var rssi = peripheral.rssi;
+    // console.log('peripheral: ' + peripheral + ' found');
+    // console.log('advertisement: ' + advertisement + ' found');
+    
 
-      var mfd;
+    var localName = advertisement.localName;
+    var txPowerLevel = advertisement.txPowerLevel;
+    var manufacturerData = advertisement.manufacturerData;
+    var serviceData = advertisement.serviceData;
+    var serviceUuids = advertisement.serviceUuids;
+    var rssi = peripheral.rssi;
 
-      if (localName) {
-        console.log('  Local Name        = ' + localName);
-      }
+    var mfd;
 
-      if (txPowerLevel) {
-        console.log('  TX Power Level    = ' + txPowerLevel);
-      }
+    if (localName) {
+      console.log('  Local Name        = ' + localName);
+    }
 
-      if (manufacturerData) {
-        console.log('  Manufacturer Data = ' + manufacturerData.toString('hex'));
-        mfd = manufacturerData.toString('hex');
-      }
+    if (txPowerLevel) {
+      console.log('  TX Power Level    = ' + txPowerLevel);
+    }
 
-      // if (serviceData) {
-      //   console.log('  Service Data      = ' + JSON.stringify(serviceData, null, 2));
-      // }
+    if (manufacturerData) {
+      console.log('  Manufacturer Data = ' + manufacturerData.toString('hex'));
+      mfd = manufacturerData.toString('hex');
+    }
 
-      if (serviceUuids) {
-        console.log('  Service UUIDs     = ' + serviceUuids);
-      }
+    // if (serviceData) {
+    //   console.log('  Service Data      = ' + JSON.stringify(serviceData, null, 2));
+    // }
 
-      if (rssi) {
-        console.log('  Service rssi     = ' + rssi);
-      }
+    if (serviceUuids) {
+      console.log('  Service UUIDs     = ' + serviceUuids);
+    }
 
-      // sendThroughWebSocket(_ws, rssi);
-      if (_ws !== null) {
-        console.log("GOOD _ws: ", _ws);
+    if (rssi) {
+      console.log('  Service rssi     = ' + rssi);
+    }
+
+    // sendThroughWebSocket(_ws, rssi);
+    if (_ws !== null) {
+      console.log("GOOD _ws: ", _ws);
+
+      if(DEBUG == true){
         _ws.send(rssi);
       } else {
-        console.log("BAD _ws: NO CONNECTION");
+
+        // this happens in the send Discoveries interval function
+        // _ws.send();
       }
 
+    } else {
+      console.log("BAD _ws: NO CONNECTION");
+    }
 
-      if(save_cache == true){
 
-        if (mfd != undefined){
+    if(save_cache == true){
 
-          if(_.indexOf(ble_cache, mfd) == -1){
-            deviceCount++;
-            ble_cache.push(mfd);
-          }
-        }
+      if (mfd != undefined){
 
-      } else {
-        // console.log("ble_cache", ble_cache);
-
-        // Check to see if it's in the cache
         if(_.indexOf(ble_cache, mfd) == -1){
-          // Checks to see if the device is in the discovery object
-          if(_.has(discoveries, mfd)){
-            // do update here for the current rssi values
+          deviceCount++;
+          ble_cache.push(mfd);
+        }
+      }
 
-            console.log("TO USE: HAS THIS PERIFERAL IN TO USE LIST");
+    } else {
+      // console.log("ble_cache", ble_cache);
 
-            discoveries[mfd].rssi = rssi;
-            discoveries[mfd].lastSeen = globalCounter;
+      // Check to see if it's in the cache
+      if(_.indexOf(ble_cache, mfd) == -1){
+        // Checks to see if the device is in the discovery object
 
-            console.log("discoveries: ", discoveries);
-            console.log(" ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-            console.log(" ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-            console.log(" ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-            console.log(" ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-            console.log(" ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+        var find_index = _.findIndex(discoveries, function(o) { 
+          return o.mfd == mfd; 
+        });
 
-            // update the object's rssi periferal
-            // update last seen for garbage cleaning at end of script
+        if(find_index >= 0){
+        // if(_.has(discoveries, mfd)){
+          // do update here for the current rssi values
 
-          } else {
-            // add peripheral to the discoveries ID'd under the MFD
-            // discoveries[mfd] = peripheral;
-            deviceCount++;
+          console.log("TO USE: HAS THIS PERIFERAL IN TO USE LIST");
 
-            discoveries[mfd] = {
-              deviceUID: "_"+device
-              deviceCount: deviceCount,
-              mfd: mfd,
-              uuid: peripheral.uuid,
-              localName: localName,
-              serviceData: JSON.stringify(serviceData, null, 2),
-              serviceUuids: serviceUuids,
-              rssi: rssi,
-              active: true,
-              discovered: globalCounter,
-              lastSeen: globalCounter
-            };
+          discoveries[find_index].rssi = rssi;
+          discoveries[find_index].lastSeen = globalCounter;
 
-          }
+          console.log("discoveries: ", discoveries);
+          console.log(" ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+          console.log(" ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+          console.log(" ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+          console.log(" ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+          console.log(" ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+
+          // update the object's rssi periferal
+          // update last seen for garbage cleaning at end of script
+
+        } else {
+          // add peripheral to the discoveries ID'd under the MFD
+          // discoveries[mfd] = peripheral;
+          deviceCount++;
+
+          // var tmp_obj = {
+          //   [mfd]: {
+          //     deviceUID: "_"+deviceCount,
+          //     deviceCount: deviceCount,
+          //     mfd: mfd,
+          //     uuid: peripheral.uuid,
+          //     localName: localName,
+          //     serviceData: JSON.stringify(serviceData, null, 2),
+          //     serviceUuids: serviceUuids,
+          //     rssi: rssi,
+          //     active: true,
+          //     discovered: globalCounter,
+          //     lastSeen: globalCounter
+          //   }
+          // };
+
+          var tmp_obj = {
+            deviceUID: "_"+deviceCount,
+            deviceCount: deviceCount,
+            mfd: mfd,
+            uuid: peripheral.uuid,
+            localName: localName,
+            serviceData: JSON.stringify(serviceData, null, 2),
+            serviceUuids: serviceUuids,
+            rssi: rssi,
+            active: true,
+            discovered: globalCounter,
+            lastSeen: globalCounter
+          };
+
+          discoveries.push(tmp_obj);
+
+          // discoveries[mfd] = {
+          //   deviceUID: "_"+deviceCount,
+          //   deviceCount: deviceCount,
+          //   mfd: mfd,
+          //   uuid: peripheral.uuid,
+          //   localName: localName,
+          //   serviceData: JSON.stringify(serviceData, null, 2),
+          //   serviceUuids: serviceUuids,
+          //   rssi: rssi,
+          //   'active': true,
+          //   discovered: globalCounter,
+          //   lastSeen: globalCounter
+          // };
 
         }
 
       }
 
+    }
 
-      console.log();
 
-      //explore(peripheral);
-      console.log("=================================");
-      console.log("=================================");
-      console.log("=================================");
-    // }
+    console.log();
+
+    //explore(peripheral);
+    console.log("=================================");
+    console.log("=================================");
+    console.log("=================================");
+    
   });
 
   function sendThroughWebSocket(ws, data){
