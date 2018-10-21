@@ -97,22 +97,23 @@ function sendDiscoveriesTimer(){
   console.log("WE EVER GET HERE?????");
 
   // sendID = setIntervalPromise(5000, 'foobar').then((value) => {
-  sendID = setTimeoutPromise(5000, 'foobar').then((value2) => {
+  sendID = setTimeoutPromise(5000, 'foo').then((value2) => {
 
     console.log("setIntervalPromise: ", value2);
-    // console.log("discoveries: ", discoveries);
+    console.log("discoveries: ", discoveries);
 
     clearPeriferalLastSeenPromise(discoveries).then((active_value) => {
-      // console.log("Arguments", arguments);
+      console.log("Arguments", arguments);
       console.log("active_value", active_value);
-      console.log("====================");
-      console.log("RETURNED FILTER, tmp_obj_v2");
+      // console.log("====================");
+      // console.log("RETURNED FILTER", tmp_obj_v2);
       console.log("====================");
       console.log("====================");
 
       if(DEBUG == false){
         if(wsConnection == true){
-          _ws.send(active_value);  
+          // _ws.send(active_value);
+          _ws.send(JSON.stringify(active_value));
         }
       }
 
@@ -161,7 +162,7 @@ function sendDiscoveriesTimer(){
 
 function clearPeriferalLastSeen(_discoveries, callback){
   // console.log("arguments", arguments);
-  // console.log("_discoveries", _discoveries);
+  console.log("clearPeriferalLastSeen _discoveries", _discoveries);
 
   _.each(_discoveries, function(val, key){
 
@@ -178,7 +179,8 @@ function clearPeriferalLastSeen(_discoveries, callback){
   // let tmp_objects = _.cloneDeep(_discoveries);
   // console.log("tmp_objects: ", tmp_objects);
 
-  let tmp_obj_v2 = _.filter(tmp_objects, function(val){ return val.active});
+  // let tmp_obj_v2 = _.filter(tmp_objects, function(val){ return val.active});
+  let tmp_obj_v2 = _.filter(_discoveries, function(val){ return val.active});
   console.log("tmp_obj_v2: ", tmp_obj_v2);
 
   callback(null, tmp_obj_v2);
