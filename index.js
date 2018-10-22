@@ -9,6 +9,8 @@
 // 
 // ===================
 
+const DEBUG = true;
+
 var _ = require('lodash');
 const WebSocket = require('ws');
 const async = require('async');
@@ -19,13 +21,37 @@ const setIntervalPromise = util.promisify(setInterval);
 const clearPeriferalLastSeenPromise = util.promisify(clearPeriferalLastSeen);
 
 const allowDuplicates = true;
-const serviceUUIDs = [];
-// const serviceUUIDs = ["1800"];
 
+let serviceUUIDs;
 
-const DEBUG = false;
+if(DEBUG == true){
+  serviceUUIDs = ["1800"];
+} else {
+  serviceUUIDs = [];
+}
 
+var timeoutID;
+var save_cache = true;
+var sendID;
+var send_discoveries = false;
+var globalCounter = 0;
 
+var deviceCount = 0;
+
+var ble_cache = [];
+var discoveries = [];
+
+// WebSocket Code
+// const wss = new WebSocket.Server({ path: 'john', port: 8080 });
+// const wss = new WebSocket.Server({ host: 'ws://localhost', path: 'john', port: 8080 });
+const wss = new WebSocket.Server({path: '/john', port: 8080 });
+var _ws = null;
+let wsConnection = false;
+
+// init Noble BLE 
+initNoble();
+
+console.log(wss.address());
 
 // Noble BLE Services
 noble.on('stateChange', function(state) {
@@ -42,26 +68,7 @@ function callbackHandler(error){
 
 }
 
-var timeoutID;
-var save_cache = true;
-var sendID;
-var send_discoveries = false;
-var globalCounter = 0;
-
-var deviceCount = 0;
-
-// WebSocket Code
-// const wss = new WebSocket.Server({ path: 'john', port: 8080 });
-// const wss = new WebSocket.Server({ host: 'ws://localhost', path: 'john', port: 8080 });
-const wss = new WebSocket.Server({path: '/john', port: 8080 });
-var _ws = null;
-let wsConnection = false;
-
 delayedAlert();
-
-// var ble_cache = {};
-var ble_cache = [];
-var discoveries = [];
 
 function delayedAlert() {
 
@@ -69,11 +76,6 @@ function delayedAlert() {
   // 
   // update back to 15000
   timeoutID = setTimeoutPromise(5000, 'foobar').then((value) => {
-
-
-    // // value === 'foobar' (passing values is optional)
-    // // This is executed after about 40 milliseconds.
-
 
     save_cache = false;
     clearAlert();
@@ -115,6 +117,8 @@ function sendDiscoveriesTimer(){
           // _ws.send(active_value);
           _ws.send(JSON.stringify(active_value));
         }
+      } else {
+
       }
 
     })
@@ -189,11 +193,6 @@ function clearPeriferalLastSeen(_discoveries, callback){
 function clearAlert() {
   clearTimeout(timeoutID);
 }
-
-// init Noble BLE 
-initNoble();
-
-console.log(wss.address());
  
 wss.on('connection', function connection(ws, req) {
   const ip = req.connection.remoteAddress;
@@ -203,10 +202,7 @@ wss.on('connection', function connection(ws, req) {
   _ws = ws;
 
   console.log("ws: ", ws);
-  console.log("_ws: ",_ws);
-
-  // this.initNoble(ws);
-  // this.initNoble();
+  // console.log("_ws: ",_ws);
 
   ws.on('message', function incoming(message) {
     console.log('received: %s', message);
@@ -288,12 +284,42 @@ function initNoble(){
       console.log('  Service rssi     = ' + rssi);
     }
 
+
+
+    // TODO:
+    // TODO:
+    // TODO:
+    // TODO:
+    // TODO: There is a bug here with the discovered and last seen values and how this is scoped
+    // to this area... and for the non-debug below it's a bit different.
+    // it needs to be figured out in a bit better way.
+    // but in the mean time dealing with the BLE devices and getting everything 
+    // working with the correct data structure...
+    // this is ok for now...
+    var tmp_obj = {
+      deviceUID: "_"+deviceCount,
+      deviceCount: deviceCount,
+      mfd: mfd,
+      uuid: peripheral.uuid,
+      localName: localName,
+      serviceData: JSON.stringify(serviceData, null, 2),
+      serviceUuids: serviceUuids,
+      rssi: rssi,
+      active: true,
+      discovered: globalCounter,
+      lastSeen: globalCounter
+    };
+
     // sendThroughWebSocket(_ws, rssi);
     if (_ws !== null) {
       console.log("GOOD _ws: ", _ws);
 
       if(DEBUG == true){
-        _ws.send(rssi);
+        // _ws.send(rssi);
+        // _ws.send(tmp_obj);
+        discoveries[0] = tmp_obj;
+        _ws.send(JSON.stringify(discoveries));
+        
       } else {
 
         // this happens in the send Discoveries interval function
