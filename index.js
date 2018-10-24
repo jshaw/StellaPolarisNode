@@ -9,7 +9,7 @@
 // 
 // ===================
 
-const DEBUG = true;
+const DEBUG = false;
 
 var _ = require('lodash');
 const WebSocket = require('ws');
@@ -201,7 +201,7 @@ wss.on('connection', function connection(ws, req) {
 
   _ws = ws;
 
-  console.log("ws: ", ws);
+  // console.log("ws: ", ws);
   // console.log("_ws: ",_ws);
 
   ws.on('message', function incoming(message) {
@@ -312,7 +312,7 @@ function initNoble(){
 
     // sendThroughWebSocket(_ws, rssi);
     if (_ws !== null) {
-      console.log("GOOD _ws: ", _ws);
+      // console.log("GOOD _ws: ", _ws);
 
       if(DEBUG == true){
         // _ws.send(rssi);
