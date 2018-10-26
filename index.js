@@ -44,7 +44,7 @@ var discoveries = [];
 // WebSocket Code
 // const wss = new WebSocket.Server({ path: 'john', port: 8080 });
 // const wss = new WebSocket.Server({ host: 'ws://localhost', path: 'john', port: 8080 });
-const wss = new WebSocket.Server({path: '/john', port: 8080 });
+const wss = new WebSocket.Server({path: '/stella', port: 8080 });
 var _ws = null;
 let wsConnection = false;
 
@@ -99,7 +99,7 @@ function sendDiscoveriesTimer(){
   console.log("WE EVER GET HERE?????");
 
   // sendID = setIntervalPromise(5000, 'foobar').then((value) => {
-  sendID = setTimeoutPromise(5000, 'foo').then((value2) => {
+  sendID = setTimeoutPromise(500, 'foo').then((value2) => {
 
     console.log("setIntervalPromise: ", value2);
     console.log("discoveries: ", discoveries);
